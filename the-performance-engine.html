@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en-NZ" style="background:#FFFFFF">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<title>The Performance Engine</title>
+<meta name="description" content="A systems model for sustained performance: build capacity, reduce interference and run the flywheel that keeps the environment learning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Kaushan+Script&display=swap">
+<style>
+/* ST Performance Global: brand pack v2, light first.
+   Ground is fixed brand white. Panels are paper. Dark is reserved for emphasis bands. */
+:root{
+  color-scheme: light only;
+  --white:#FFFFFF; --paper:#F4F2ED; --panel:#EAE6DD;
+  --navy:#182C4D; --deep:#0C1524; --deepest:#080F1B; --blueprint:#1E5A9C;
+  --bronze:#A8791A; --gold:#EAC148; --silver:#9098A2;
+  --heading:#16233B; --ink:#2C3138; --muted:#4C535B; --soft:#6F7883;
+  --rule:rgba(24,44,77,.16); --rule-strong:rgba(24,44,77,.34); --line-gold:rgba(190,143,20,.75);
+  --on-dark:#F4F2EC; --on-dark-muted:#B9C0CA;
+  --gutter:clamp(16px,4.2vw,64px);
+  --display:"Bricolage Grotesque","Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --script:"Kaushan Script","Brush Script MT",cursive;
+}
+html{color-scheme:light only;background:linear-gradient(#FFFFFF,#FFFFFF) !important;scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:linear-gradient(#FFFFFF,#FFFFFF) !important;color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.7;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip}
+*,*::before,*::after{box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none !important;animation:none !important}}
+h1,h2,h3,h4{font-family:var(--display);color:var(--heading);font-weight:700;letter-spacing:-.02em;line-height:1.08;text-wrap:balance;margin:0}
+p{margin:0}
+p+p{margin-top:1em}
+a{color:var(--bronze)}
+:focus-visible{outline:2px solid var(--bronze);outline-offset:3px}
+.eyebrow{font-family:var(--body);font-size:.72rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--bronze)}
+.script{font-family:var(--script);font-weight:400;color:var(--bronze);letter-spacing:0;text-transform:none}
+
+/* ---------- Site bar ---------- */
+.sitebar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:linear-gradient(rgba(255,255,255,.96),rgba(255,255,255,.96));backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.sitebar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;padding-inline:var(--gutter)}
+.brand{display:flex;flex-direction:column;text-decoration:none;line-height:1.05}
+.brand b{font-family:var(--display);font-weight:800;font-size:1.12rem;color:var(--heading);letter-spacing:-.01em}
+.brand span{font-size:.58rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze);margin-top:4px}
+.bar-actions{display:flex;align-items:center;gap:18px}
+.bar-actions .series{font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--body);font-weight:700;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--navy);color:var(--navy);background:linear-gradient(transparent,transparent);transition:background .15s,color .15s;cursor:pointer}
+.btn:hover,.btn:focus-visible{background:linear-gradient(var(--navy),var(--navy));color:#FFFFFF}
+.btn svg{width:15px;height:15px}
+.btn.gold{border-color:var(--gold);color:var(--gold)}
+.btn.gold:hover,.btn.gold:focus-visible{background:linear-gradient(var(--gold),var(--gold));color:var(--deepest)}
+
+/* ---------- Hero ---------- */
+.hero{padding-inline:var(--gutter);padding-block:clamp(44px,7vw,96px) clamp(36px,5vw,64px);display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,5vw,80px);align-items:end;border-bottom:1px solid var(--rule)}
+.hero h1{font-size:clamp(2.9rem,7.4vw,6.2rem);font-weight:800;letter-spacing:-.045em;line-height:.95;margin-top:18px}
+.hero h1 .script{display:block;font-size:.5em;letter-spacing:0;margin-top:.22em;line-height:1}
+.lede{font-size:clamp(1.12rem,1.5vw,1.34rem);line-height:1.6;color:var(--muted);max-width:60ch;margin-top:28px}
+.byline{margin-top:28px;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.74rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
+.byline b{color:var(--heading);font-weight:700}
+.equation-card{background:linear-gradient(var(--paper),var(--paper));padding:clamp(24px,3vw,40px);border-top:2px solid var(--bronze)}
+.equation-card .eyebrow{display:block;margin-bottom:18px}
+.equation{font-family:var(--display);font-weight:700;color:var(--heading);letter-spacing:-.03em;line-height:1.02;font-size:clamp(1.9rem,3.6vw,3.3rem)}
+.equation .op{color:var(--bronze);font-weight:600;padding-inline:.12em}
+.equation .row{display:block}
+.equation .parts{display:block;font-family:var(--body);font-size:.34em;font-weight:600;letter-spacing:.02em;color:var(--bronze);margin:.15em 0 .45em 1.05em}
+.equation-card p{margin-top:20px;font-size:.98rem;color:var(--muted);max-width:44ch}
+
+/* ---------- Blueprint figure ---------- */
+.blueprint{background:linear-gradient(var(--blueprint),var(--blueprint));color:var(--on-dark);padding:clamp(20px,3vw,40px);position:relative;margin-bottom:clamp(32px,4vw,52px)}
+.blueprint-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.blueprint-head .eyebrow{color:var(--gold)}
+.blueprint-head span.ref{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#D6E2F0}
+.fig-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-scroll svg{display:block;width:100%;min-width:880px;height:auto;max-width:1600px;margin-inline:auto}
+.blueprint figcaption{margin-top:18px;max-width:92ch;font-size:.92rem;line-height:1.6;color:#D6E2F0}
+.blueprint figcaption b{color:var(--on-dark);font-weight:600}
+figure{margin:0}
+
+/* ---------- Layout: rail and content ---------- */
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:clamp(28px,4vw,64px);padding-inline:var(--gutter)}
+.rail{position:relative}
+.rail nav{position:sticky;top:96px;padding-block:48px 32px}
+.rail .eyebrow{display:block;margin-bottom:16px;color:var(--soft)}
+.rail ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--rule)}
+.rail li a{display:block;padding:8px 0 8px 16px;margin-left:-1px;border-left:2px solid transparent;text-decoration:none;color:var(--muted);font-size:.9rem;line-height:1.35;transition:color .15s,border-color .15s}
+.rail li a:hover{color:var(--heading)}
+.rail li a.active{color:var(--heading);border-left-color:var(--bronze);font-weight:600}
+.rail .rail-pdf{margin-top:28px}
+main{min-width:0}
+
+/* ---------- Sections ---------- */
+.section{padding-block:clamp(48px,6vw,84px);border-bottom:1px solid var(--rule)}
+.section:last-of-type{border-bottom:none}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:30px;max-width:60rem}
+.sec-head h2{font-size:clamp(1.9rem,3.4vw,2.9rem)}
+.split{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:start}
+.prose{max-width:68ch}
+.prose p{color:var(--ink)}
+.full{margin-top:36px}
+
+/* Aside panels */
+.aside{display:grid;gap:18px}
+.panel{background:linear-gradient(var(--paper),var(--paper));padding:24px 26px 26px}
+.panel h3{font-size:1.12rem;margin-bottom:12px}
+.panel .eyebrow{display:block;margin-bottom:10px}
+.panel p{font-size:.95rem;color:var(--muted)}
+.panel ul{list-style:none;margin:0;padding:0}
+.panel li{position:relative;padding:8px 0 8px 22px;border-top:1px solid var(--rule);font-size:.95rem;line-height:1.5;color:var(--ink)}
+.panel li:first-child{border-top:none}
+.panel li::before{content:"";position:absolute;left:2px;top:15px;width:8px;height:8px;border:1.5px solid var(--bronze);transform:rotate(45deg)}
+.panel li b{color:var(--heading);font-weight:600}
+.pull{border-left:2px solid var(--bronze);padding:6px 0 6px 22px}
+.pull p{font-family:var(--display);font-weight:600;font-size:1.42rem;line-height:1.25;letter-spacing:-.015em;color:var(--heading)}
+.pull cite{display:block;margin-top:12px;font-style:normal;font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+.sources li{font-size:.86rem;color:var(--muted)}
+.sources li i{color:var(--ink)}
+
+/* Four types */
+.sym{display:inline-block;min-width:1.1em;font-family:var(--display);font-weight:800;color:var(--bronze);margin-right:.35em;text-align:center}
+.row .type{display:block;margin-top:8px;font-size:.78rem;font-weight:600;color:var(--muted)}
+.panel.types li{padding-left:0}
+.panel.types li::before{display:none}
+.panel.types .sym{font-size:1.15em}
+.rate .lbl .sym{font-size:1.05em}
+.matrix-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.matrix{width:100%;min-width:760px;border-collapse:collapse;font-size:.93rem;line-height:1.45}
+.matrix th,.matrix td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--rule)}
+.matrix thead th{font-family:var(--body);font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--heading);border-bottom:2px solid var(--heading);background:linear-gradient(var(--paper),var(--paper))}
+.matrix thead th .sym{font-size:1.4em;letter-spacing:0;vertical-align:-.1em}
+.matrix tbody th{font-family:var(--display);font-weight:700;font-size:1rem;color:var(--heading);width:14%}
+.matrix td{color:var(--ink);width:21.5%}
+.matrix td:nth-child(4),.matrix td:nth-child(5){background:linear-gradient(rgba(244,242,237,.55),rgba(244,242,237,.55))}
+.matrix-wrap .lead-in{max-width:80ch}
+.matrix-title{font-size:1.35rem;margin-bottom:8px}
+/* Definition rows: capacity and interference */
+.rows{border-top:2px solid var(--heading)}
+.row{display:grid;grid-template-columns:minmax(170px,.8fr) minmax(0,1.5fr) minmax(0,1.2fr);gap:clamp(18px,2.4vw,40px);padding-block:26px;border-bottom:1px solid var(--rule)}
+.row h3{font-size:1.28rem}
+.row .tag{display:block;font-size:.66rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);margin-bottom:8px}
+.row .def{font-size:1rem;color:var(--ink)}
+.row .def p+p{margin-top:.8em}
+.row .def .thin{color:var(--muted)}
+.row .move{background:linear-gradient(var(--paper),var(--paper));padding:16px 18px;font-size:.95rem;line-height:1.55;align-self:start}
+.row .move .tag{margin-bottom:6px}
+.rows.int .row{grid-template-columns:minmax(170px,.8fr) minmax(0,1.35fr) minmax(0,1.35fr)}
+.lead-in{font-size:.95rem;color:var(--muted);margin-bottom:14px;max-width:68ch}
+
+/* Flywheel stages */
+.stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:2px solid var(--heading);margin-top:36px}
+.stage-row{display:contents}
+.stage{padding:26px 24px 30px;border-right:1px solid var(--rule);display:flex;flex-direction:column}
+.stage.s1{padding-left:0}
+.stage.s4{border-right:none;padding-right:0}
+.stage .num{font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1;color:var(--bronze);letter-spacing:-.03em}
+.stage h3{font-size:1.5rem;margin-top:10px}
+.stage p{margin-top:12px;font-size:.98rem}
+.stage .actions{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+.stage .actions .tag{display:block;font-size:.66rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);margin-bottom:6px}
+.stage ul{list-style:none;margin:0;padding:0}
+.stage li{position:relative;padding:7px 0 7px 20px;font-size:.93rem;line-height:1.5}
+.stage li::before{content:"";position:absolute;left:0;top:14px;width:10px;height:6px;border-left:2px solid var(--bronze);border-bottom:2px solid var(--bronze);transform:rotate(-45deg)}
+
+/* Ninety day cycle */
+.cycle{list-style:none;margin:36px 0 0;padding:0;border-top:2px solid var(--heading)}
+.cycle li{display:grid;grid-template-columns:64px minmax(150px,.55fr) minmax(0,1.6fr);gap:clamp(14px,2vw,32px);padding-block:22px;border-bottom:1px solid var(--rule);align-items:start}
+.cycle .num{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1;color:var(--bronze)}
+.cycle .when{display:block;font-size:.66rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--soft);margin-top:6px}
+.cycle h3{font-size:1.2rem}
+.cycle p{font-size:1rem}
+.test{margin-top:34px;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center}
+
+/* Engine Audit tool */
+.audit{margin-top:48px;background:linear-gradient(var(--paper),var(--paper));padding:clamp(22px,3vw,40px)}
+.audit-head{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);align-items:end;margin-bottom:28px}
+.audit-head h3{font-size:clamp(1.5rem,2.4vw,2rem);margin-top:8px}
+.audit-head p{font-size:.95rem;color:var(--muted)}
+.audit-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,2.6vw,48px);align-items:start}
+.readout{grid-column:1 / -1;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px 36px;align-items:start}
+.readout > .eyebrow{grid-column:1 / -1}
+.readout .net,.readout .start{margin-top:0;padding-top:0;border-top:none}
+.readout .example-note,.readout .reset{grid-column:1 / -1;margin-top:4px}
+@media screen and (min-width:1680px){.audit-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.9fr)}.readout{grid-column:auto;display:block}.readout .net,.readout .start{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}}
+.audit-col h4{font-size:.74rem;font-family:var(--body);font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--heading);padding-bottom:10px;border-bottom:2px solid var(--heading);display:flex;justify-content:space-between;gap:12px}
+.audit-col h4 span{color:var(--soft);font-weight:600;letter-spacing:.12em}
+.rate{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:9px;border-bottom:1px solid var(--rule)}
+.rate .lbl{font-size:.92rem;line-height:1.3;color:var(--ink)}
+.scale{display:flex;gap:4px;flex-shrink:0}
+.scale input{position:absolute;opacity:0;width:1px;height:1px}
+.scale label{width:30px;height:30px;display:grid;place-items:center;font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums;border:1px solid var(--rule-strong);color:var(--muted);background:linear-gradient(#FFFFFF,#FFFFFF);cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.scale label:hover{border-color:var(--navy);color:var(--heading)}
+.scale input:checked+label{background:linear-gradient(var(--navy),var(--navy));border-color:var(--navy);color:#FFFFFF}
+.scale input:focus-visible+label{outline:2px solid var(--bronze);outline-offset:2px}
+.int-col .scale input:checked+label{background:linear-gradient(var(--bronze),var(--bronze));border-color:var(--bronze)}
+.readout{background:linear-gradient(#FFFFFF,#FFFFFF);padding:22px 22px 24px;border-top:2px solid var(--bronze)}
+.readout .eyebrow{display:block;color:var(--soft);margin-bottom:14px}
+.meter{margin-bottom:16px}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;font-size:.82rem;font-weight:600;color:var(--heading);margin-bottom:6px}
+.meter-top output{font-family:var(--display);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.track{height:10px;background:linear-gradient(var(--panel),var(--panel));position:relative}
+.fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(var(--navy),var(--navy));transition:width .25s}
+.fill.int{background:linear-gradient(var(--bronze),var(--bronze))}
+.net{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule)}
+.net .big{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;color:var(--heading);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.net .state{display:inline-block;margin-top:10px;font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:5px 9px;color:#FFFFFF;background:linear-gradient(var(--navy),var(--navy))}
+.net .state.drag{background:linear-gradient(var(--bronze),var(--bronze))}
+.net .state.strain{background:linear-gradient(#8A3B2E,#8A3B2E)}
+.net p{margin-top:10px;font-size:.9rem;color:var(--muted);line-height:1.5}
+.start{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+.start .tag{display:block;font-size:.66rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);margin-bottom:6px}
+.start p{font-size:.9rem;line-height:1.5;color:var(--ink)}
+.start p+p{margin-top:10px}
+.start b{color:var(--heading)}
+.example-note{margin-top:18px;font-size:.8rem;color:var(--soft)}
+.reset{margin-top:14px;font:inherit;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.questions{margin-top:28px}
+.questions ol{margin:10px 0 0;padding:0;list-style:none;counter-reset:q;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 36px}
+.questions li{counter-increment:q;position:relative;padding:12px 0 12px 34px;border-top:1px solid var(--rule);font-size:.97rem;line-height:1.5}
+.questions li::before{content:counter(q);position:absolute;left:0;top:11px;font-family:var(--display);font-weight:700;color:var(--bronze)}
+.audit-print{display:none}
+
+/* ---------- Closing band ---------- */
+.closing{background:linear-gradient(var(--navy),var(--navy));color:var(--on-dark);padding-block:clamp(56px,8vw,112px);padding-inline:var(--gutter);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(28px,5vw,80px);align-items:end}
+.closing .eyebrow{color:var(--gold)}
+.closing h2{color:#FFFFFF;font-size:clamp(2.2rem,4.6vw,3.8rem);margin-top:16px;letter-spacing:-.035em}
+.closing h2 .script{display:block;color:var(--gold);font-size:.62em;margin-top:.25em;letter-spacing:0}
+.closing p{color:var(--on-dark-muted);font-size:1.08rem;line-height:1.7;max-width:60ch}
+.closing p+p{margin-top:1em}
+.closing .cta{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap}
+footer.site{background:linear-gradient(var(--deepest),var(--deepest));color:var(--on-dark-muted);padding-block:26px;padding-inline:var(--gutter);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+footer.site a{color:var(--gold);text-decoration:none}
+.print-only{display:none}
+
+/* ---------- Responsive ---------- */
+@media screen and (max-width:1180px){
+  .split,.test{grid-template-columns:minmax(0,1fr)}
+  .prose{max-width:72ch}
+  .stages{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stage.s2{border-right:none;padding-right:0}
+  .stage.s3{padding-left:0;border-top:1px solid var(--rule)}
+  .stage.s4{border-top:1px solid var(--rule)}
+}
+@media screen and (max-width:980px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .rail nav{position:static;padding-block:18px 0}
+  .rail ol{display:flex;gap:4px 18px;flex-wrap:wrap;border-left:none}
+  .rail li a{padding:4px 0;border-left:none;margin-left:0;font-size:.85rem}
+  .rail .rail-pdf{display:none}
+  .row,.rows.int .row{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}
+  .row .move{grid-column:2}
+  .closing{grid-template-columns:minmax(0,1fr)}
+  .bar-actions .series{display:none}
+}
+@media screen and (max-width:680px){
+  body{font-size:16.5px}
+  .row,.rows.int .row{grid-template-columns:minmax(0,1fr);gap:10px}
+  .row .move{grid-column:auto}
+  .stages{grid-template-columns:minmax(0,1fr)}
+  .stage,.stage.s1,.stage.s2,.stage.s3,.stage.s4{padding:22px 0;border-right:none;border-top:1px solid var(--rule)}
+  .stage.s1{border-top:none}
+  .cycle li{grid-template-columns:44px minmax(0,1fr)}
+  .cycle li > p{grid-column:2}
+  .audit-grid{grid-template-columns:minmax(0,1fr)}
+  .audit-head{grid-template-columns:minmax(0,1fr)}
+  .scale label{width:28px;height:28px}
+  .btn{padding:10px 14px}
+}
+
+/* ---------- Forced dark protection: restate every ground and text colour ---------- */
+@media (prefers-color-scheme:dark){
+  html,body{background:linear-gradient(#FFFFFF,#FFFFFF) !important;color:#2C3138 !important}
+  .sitebar{background:linear-gradient(rgba(255,255,255,.96),rgba(255,255,255,.96)) !important}
+  .hero,.section,main,.layout,.rail{background:linear-gradient(transparent,transparent) !important}
+  h1,h2,h3,h4,.brand b,.equation{color:#16233B !important}
+  .prose p,.row .def,.stage p,.cycle p,.questions li,.rate .lbl,.panel li,.start p{color:#2C3138 !important}
+  .lede,.panel p,.lead-in,.row .def .thin{color:#4C535B !important}
+  .equation-card,.panel,.row .move,.audit{background:linear-gradient(#F4F2ED,#F4F2ED) !important}
+  .readout,.scale label{background:linear-gradient(#FFFFFF,#FFFFFF) !important}
+  .scale input:checked+label{background:linear-gradient(#182C4D,#182C4D) !important;color:#FFFFFF !important}
+  .int-col .scale input:checked+label{background:linear-gradient(#A8791A,#A8791A) !important}
+  .blueprint{background:linear-gradient(#1E5A9C,#1E5A9C) !important;color:#F4F2EC !important}
+  .closing{background:linear-gradient(#182C4D,#182C4D) !important}
+  .closing h2{color:#FFFFFF !important}
+  .closing p{color:#B9C0CA !important}
+  .blueprint figcaption,.blueprint-head span.ref{color:#D6E2F0 !important}
+  footer.site{background:linear-gradient(#080F1B,#080F1B) !important;color:#B9C0CA !important}
+}
+
+/* ---------- Print: A4 ---------- */
+@page{size:A4;margin:0.6in 0.5in 0.55in 0.5in}
+@media print{
+  html,body{background:#FFFFFF !important;background-image:none !important}
+  body{font-size:9.6pt;line-height:1.52;overflow:visible}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sitebar,.rail,.no-print,.audit-live,.closing .cta,.reset{display:none !important}
+  .print-only{display:block}
+  .layout{display:block;padding:0}
+  .hero{padding:0 0 14pt;display:grid;grid-template-columns:1.5fr 1fr;gap:18pt;border-bottom:1px solid var(--rule)}
+  .print-brand{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:9pt;margin-bottom:14pt;border-bottom:2px solid var(--heading);grid-column:1 / -1}
+  .print-brand b{font-family:var(--display);font-weight:800;font-size:11pt;color:var(--heading)}
+  .print-brand span{font-size:6.5pt;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze)}
+  .hero h1{font-size:36pt;margin-top:6pt}
+  .hero h1 .script{font-size:.5em}
+  .lede{font-size:10.4pt;margin-top:10pt}
+  .byline{margin-top:12pt;font-size:6.5pt}
+  .equation-card{padding:14pt 16pt}
+  .equation{font-size:19pt}
+  .equation-card p{font-size:8.6pt;margin-top:10pt}
+  .blueprint{padding:10pt 12pt 10pt;margin:0 0 14pt}
+  .blueprint-head{margin-bottom:6pt}
+  .blueprint-head .eyebrow,.blueprint-head span.ref{font-size:6.5pt}
+  .fig-scroll{overflow:visible}
+  .fig-scroll svg{min-width:0;width:100%}
+  .blueprint figcaption{font-size:7.5pt;margin-top:5pt;line-height:1.45}
+  .section{padding:0;border:none;margin-top:18pt}
+  .section.pb,.row.pb,.audit.pb{break-before:page;margin-top:0}
+  .row.pb{border-top:1.5pt solid var(--heading)}
+  .test{break-inside:avoid}
+  .matrix{min-width:0;font-size:7.9pt;line-height:1.38}
+  .matrix th,.matrix td{padding:3.5pt 5pt}
+  .matrix-title{font-size:11pt;margin-bottom:3pt}
+  #elements .split{grid-template-columns:2.15fr 1fr}
+  .rows.int .row .type{display:block}
+  .matrix thead th{font-size:6pt}
+  .matrix tbody th{font-size:8.8pt}
+  .matrix tr{break-inside:avoid}
+  .row .type{font-size:7.4pt;margin-top:3pt}
+  .panel.types li{padding-left:0}
+  #flywheel{margin-top:12pt}
+  #flywheel .stages{margin-top:8pt}
+  #flywheel .panel li{padding:3pt 0 3pt 14pt}
+  #flywheel .stage .actions{margin-top:5pt;padding-top:4pt}
+  #flywheel .stage li{padding:2pt 0 2pt 14pt}
+  #flywheel .stage li::before{top:6pt}
+  #balance .aside{gap:8pt}
+  .rows:not(.int) .row:not(:first-child){padding:16.5pt 0}
+  .rows.int .row{padding:6.5pt 0}
+  .rows.int .row .tag{display:none}
+  .rows.int .row h3{font-size:10.5pt}
+  .row.row-labels{display:grid;padding:0 0 4pt;border-bottom:1.5pt solid var(--heading)}
+  .row.row-labels span{font-size:6pt;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze)}
+  .rows.int{border-top:none}
+  .stage p{font-size:8.7pt}
+  .stage li{font-size:8.3pt}
+  .sec-head{margin-bottom:10pt;gap:4pt}
+  .sec-head h2{font-size:19pt}
+  .eyebrow{font-size:6.5pt}
+  p,li{orphans:3;widows:3}
+  .split{grid-template-columns:1.8fr 1fr;gap:16pt}
+  .prose{max-width:none}
+  .full{margin-top:14pt}
+  .panel{padding:10pt 12pt 12pt;break-inside:avoid}
+  .panel h3{font-size:10.5pt;margin-bottom:6pt}
+  .panel p,.panel li{font-size:8.6pt}
+  .panel li{padding:4pt 0 4pt 14pt}
+  .panel li::before{top:8pt;width:5pt;height:5pt}
+  .pull{padding:2pt 0 2pt 12pt}
+  .pull p{font-size:12pt}
+  .pull cite{font-size:6pt;margin-top:6pt}
+  .aside{gap:10pt}
+  .rows{border-top-width:1.5pt}
+  .row{grid-template-columns:1.1fr 2fr 1.55fr;gap:12pt;padding:9pt 0;break-inside:avoid}
+  .rows.int .row{grid-template-columns:1.1fr 1.8fr 1.8fr}
+  .row h3{font-size:11pt}
+  .row .tag,.stage .actions .tag,.start .tag,.cycle .when{font-size:6pt}
+  .row .def{font-size:9pt}
+  .row .move{padding:7pt 9pt;font-size:8.4pt}
+  .lead-in{font-size:8.8pt;margin-bottom:8pt}
+  .stages{display:block;margin-top:14pt;border-top:1.5pt solid var(--heading)}
+  .stage-row{display:grid;grid-template-columns:1fr 1fr}
+  .stage-row.sr2{break-before:page;border-top:1.5pt solid var(--heading)}
+  .stage{padding:8pt 12pt 9pt;break-inside:avoid}
+  .stage.s1,.stage.s3{padding-left:0}
+  .stage.s2,.stage.s4{border-right:none;padding-right:0}
+  .stage .num{font-size:15pt}
+  .stage h3{font-size:12pt;margin-top:3pt}
+  .stage p{font-size:9pt;margin-top:6pt}
+  .stage .actions{margin-top:8pt;padding-top:6pt}
+  .stage li{font-size:8.6pt;padding:3pt 0 3pt 14pt}
+  .stage li::before{top:7pt;width:7pt;height:4pt}
+  .cycle{margin-top:14pt;border-top-width:1.5pt}
+  .cycle li{grid-template-columns:30pt 1.2fr 3fr;gap:12pt;padding:8pt 0;break-inside:avoid}
+  .cycle .num{font-size:15pt}
+  .cycle h3{font-size:10.5pt}
+  .cycle p{font-size:9pt}
+  .test{margin-top:14pt;grid-template-columns:1.6fr 1fr;gap:18pt}
+  .audit{margin-top:0;padding:14pt 16pt 16pt}
+  .audit-head{grid-template-columns:1fr;gap:6pt;margin-bottom:10pt}
+  .audit-head h3{font-size:15pt;margin-top:4pt}
+  .audit-head p{font-size:8.8pt}
+  .audit-print{display:grid;grid-template-columns:1fr 1fr;gap:18pt}
+  .ap-col h4{font-family:var(--body);font-size:7pt;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--heading);padding-bottom:5pt;border-bottom:1.5pt solid var(--heading);display:flex;justify-content:space-between}
+  .ap-col h4 span{color:var(--soft)}
+  .ap-row{display:flex;justify-content:space-between;align-items:center;padding:5.5pt 0;border-bottom:1px solid var(--rule);font-size:8.8pt}
+  .ap-row .boxes{display:flex;gap:3pt}
+  .ap-row .boxes i{width:13pt;height:13pt;border:1px solid var(--rule-strong);background:#FFFFFF;font-style:normal;font-size:6.5pt;display:grid;place-items:center;color:var(--soft)}
+  .ap-total{margin-top:7pt;font-size:8.4pt;color:var(--muted)}
+  .ap-total b{color:var(--heading)}
+  .ap-reading{grid-column:1 / -1;background:#FFFFFF;padding:9pt 11pt;border-top:1.5pt solid var(--bronze);font-size:8.6pt;line-height:1.5}
+  .ap-reading b{color:var(--heading)}
+  .questions{margin-top:12pt;break-inside:avoid}
+  .questions ol{grid-template-columns:1fr 1fr;gap:0 18pt}
+  .questions li{font-size:8.8pt;padding:5pt 0 5pt 18pt}
+  .questions li::before{top:4.5pt}
+  .closing{padding:34pt 24pt 36pt;margin-top:16pt;break-inside:avoid;grid-template-columns:1.2fr 1fr;gap:18pt}
+  .closing h2{font-size:22pt;margin-top:6pt}
+  .closing p{font-size:9.4pt}
+  footer.site{display:none}
+  .sources-print{margin-top:12pt}
+}
+</style>
+</head>
+<body style="background:#FFFFFF">
+
+<header class="sitebar">
+  <div class="sitebar-inner">
+    <a class="brand" href="https://stperformanceglobal.github.io/st-performance-global/index.html" target="_blank" rel="noopener">
+      <b>ST Performance</b>
+      <span>People. Leadership. Culture.</span>
+    </a>
+    <div class="bar-actions">
+      <span class="series">Framework Series</span>
+      <a class="btn" href="the-performance-engine.pdf" target="_blank" rel="noopener" aria-label="Open the print PDF version">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6V1.5h8V6"/><rect x="1.5" y="6" width="13" height="6" fill="none"/><path d="M4 10h8v4.5H4z" fill="none"/></svg>
+        Print PDF
+      </a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" aria-labelledby="title">
+  <div class="print-brand print-only"><b>ST Performance</b><span>People. Leadership. Culture.</span></div>
+  <div>
+    <span class="eyebrow">Framework Series</span>
+    <h1 id="title">The Performance Engine <span class="script">by design</span></h1>
+    <p class="lede">Sustained performance comes from the environment that surrounds the work. This piece sets out a model for building that environment deliberately, by growing the capacity people bring to the work and removing the interference that stops it showing up, then running a cycle that keeps the system learning.</p>
+    <div class="byline"><span><b>Simon Thomas</b></span><span>ST Performance Global</span><span>18 minute read</span></div>
+  </div>
+  <div class="equation-card">
+    <span class="eyebrow">The core relationship</span>
+    <div class="equation" aria-label="Performance equals capacity minus interference">
+      <span class="row">Performance</span>
+      <span class="row"><span class="op">=</span>Capacity</span>
+      <span class="parts">(Additions &amp; Multipliers)</span>
+      <span class="row"><span class="op">&minus;</span>Interference</span>
+      <span class="parts">(Subtractions &amp; Dividers)</span>
+    </div>
+    <p>Performance improves when an organisation deliberately increases useful capacity while reducing the interference that prevents that capacity from being expressed.</p>
+  </div>
+</section>
+
+
+<div class="layout">
+  <aside class="rail" aria-label="Sections">
+    <nav>
+      <span class="eyebrow">In this piece</span>
+      <ol>
+        <li><a href="#heroics">The heroics problem</a></li>
+        <li><a href="#engine">The engine and its equation</a></li>
+        <li><a href="#elements">What capacity and interference are made of</a></li>
+        <li><a href="#roots">Where the equation comes from</a></li>
+        <li><a href="#illusion">The high performance illusion</a></li>
+        <li><a href="#capacity">Building capacity</a></li>
+        <li><a href="#interference">Reducing interference</a></li>
+        <li><a href="#balance">Working both sides</a></li>
+        <li><a href="#flywheel">The flywheel</a></li>
+        <li><a href="#practice">Putting the engine to work</a></li>
+        <li><a href="#limits">What the model is not</a></li>
+        <li><a href="#close">The test for tomorrow</a></li>
+      </ol>
+      <a class="btn rail-pdf" href="the-performance-engine.pdf" target="_blank" rel="noopener">Print PDF</a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <section class="section" id="heroics" aria-labelledby="h-heroics">
+      <div class="sec-head"><span class="eyebrow">Introduction</span><h2 id="h-heroics">The heroics problem</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>When results dip or a demanding period arrives, the instinctive response in many high performance environments is to ask people for more. More hours and more intensity get requested from staff and athletes who are usually already giving a great deal. For a short period that often works, because talented and committed people can cover for a surprising amount of structural weakness when they care about the outcome.</p>
+          <p>The trouble lies in what the extra effort hides. Across two decades inside professional rugby union and Major League Baseball player development, I have seen environments keep winning while they accumulate fatigue, rushed decisions and unclear ownership alongside a growing dependence on the few people who hold everything together. On the scoreboard those environments look healthy, while underneath they are becoming fragile in ways that only surface when one of those people leaves, gets injured or simply runs out of energy.</p>
+          <p>The Performance Engine is a systems model built to explain that pattern and to give leaders a practical way out of it. It treats performance as an output of the environment that surrounds the work, which turns the most useful leadership question into a design question. What has to be built and what has to be removed so that good performance becomes easier to produce?</p>
+          <p>The blueprint is blunt about one diagnosis in particular. A system that needs regular heroics to survive is a broken system, however impressive those heroics look from the outside and however grateful everyone is for the people providing them.</p>
+        </div>
+        <div class="aside">
+          <blockquote class="pull"><p>If your system needs heroics to survive, it is broken.</p><cite>The Performance Engine blueprint</cite></blockquote>
+          <div class="panel">
+            <span class="eyebrow">The design question</span>
+            <p>What must we build and what must we remove so that good performance becomes easier to produce, again and again, without relying on the same few people to rescue it?</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pb" id="engine" aria-labelledby="h-engine">
+      <div class="sec-head"><span class="eyebrow">The model</span><h2 id="h-engine">The engine and its equation</h2></div>
+<figure class="blueprint" aria-labelledby="figcap">
+  <div class="blueprint-head">
+    <span class="eyebrow">Fig. 1 &nbsp; The Performance Engine blueprint</span>
+    <span class="ref">ST Performance &nbsp; System architecture</span>
+  </div>
+  <div class="fig-scroll">
+  <svg viewBox="0 0 1440 510" role="img" aria-label="The Performance Engine, read left to right. Performance equals capacity, made of additions and multipliers, minus interference, made of subtractions and dividers. Build Capacity feeds the engine. At the centre of the engine block the flywheel turns clockwise through Diagnose, Design, Implement and Adapt. The engine's output passes through a filter that strips out interference, namely overload, friction, confusion, fear, ego and politics, misalignment and decision drag, and performance arrives at the end of the line as results, sustainability and repeatability.">
+    <defs>
+      <pattern id="gridS" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="1"/></pattern>
+      <pattern id="gridL" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#gridS)"/><path d="M100 0H0V100" fill="none" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="1"/></pattern>
+      <marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#EAC148"/></marker>
+    </defs>
+    <rect width="1440" height="510" fill="#1E5A9C"/>
+    <rect width="1440" height="510" fill="url(#gridL)"/>
+    <g id="eq">
+      <text x="415.2" y="46" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="700" font-size="30" fill="#FFFFFF">Performance</text>
+      <text x="625.9" y="46" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="700" font-size="30" fill="#EAC148">=</text>
+      <text x="659.7" y="46" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="700" font-size="30" fill="#FFFFFF">Capacity</text>
+      <text x="807.6" y="46" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="700" font-size="30" fill="#EAC148">&#8722;</text>
+      <text x="841.5" y="46" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="700" font-size="30" fill="#FFFFFF">Interference</text>
+      <text x="724.7" y="72" font-family="Archivo, sans-serif" font-weight="600" font-size="13.5" letter-spacing=".4" fill="#EAC148" text-anchor="middle">(Additions &amp; Multipliers)</text>
+      <text x="933.1" y="72" font-family="Archivo, sans-serif" font-weight="600" font-size="13.5" letter-spacing=".4" fill="#EAC148" text-anchor="middle">(Subtractions &amp; Dividers)</text>
+    </g>
+    <line x1="140" y1="88" x2="1300" y2="88" stroke="#EAF1F9" stroke-opacity=".35"/>
+
+    <g font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.8" fill="#C9D8EA">
+      <text x="24" y="158">LEVER 1</text><text x="884" y="158">LEVER 2</text><text x="1178" y="158">OUTPUT</text>
+      <text x="24" y="496">DRG. PE 01</text><text x="1416" y="496" text-anchor="end">ST PERFORMANCE</text>
+    </g>
+    <g fill="#EAC148" aria-hidden="true"><rect x="130" y="138" width="40" height="8" rx="1.5"/><rect x="146" y="122" width="8" height="40" rx="1.5"/><rect x="984" y="138" width="40" height="8" rx="1.5"/></g>
+
+    <rect x="24" y="168" width="252" height="256" fill="#1E5A9C" stroke="#EAF1F9" stroke-width="1.8"/>
+    <text x="44" y="200" font-family="Archivo, sans-serif" font-size="15" font-weight="700" letter-spacing="2.2" fill="#FFFFFF">BUILD CAPACITY</text>
+    <line x1="44" y1="214" x2="256" y2="214" stroke="#EAC148" stroke-width="1.5"/>
+    <g font-family="Archivo, sans-serif" font-size="15.5" fill="#EAF1F9"><text x="52" y="245" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">+</text><text x="70" y="244">People &amp; Energy</text><text x="52" y="282" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">+</text><text x="70" y="281">Skills &amp; Capability</text><text x="52" y="319" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#215;</text><text x="70" y="318">Cohesion &amp; Trust</text><text x="52" y="356" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#215;</text><text x="70" y="355">Role Clarity &amp; Processes</text><text x="52" y="393" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">+</text><text x="70" y="392">Tools &amp; Infrastructure</text></g>
+    <text x="44" y="412" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.4" fill="#C9D8EA"><tspan fill="#EAC148" font-size="13">+</tspan> ADDITION &#160;&#160; <tspan fill="#EAC148" font-size="13">&#215;</tspan> MULTIPLIER</text>
+    <line x1="282" y1="295" x2="326" y2="295" stroke="#EAC148" stroke-width="3.5" marker-end="url(#ah)"/>
+    <text x="304" y="283" text-anchor="middle" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.8" fill="#EAC148">ADD</text>
+
+    <g fill="#174A84" stroke="#EAF1F9" stroke-width="1.6">
+      <rect x="525" y="100" width="80" height="14" rx="3"/>
+      <line x1="541" y1="100" x2="541" y2="114"/><line x1="589" y1="100" x2="589" y2="114"/>
+      <rect x="430" y="114" width="270" height="28" rx="9" stroke="#FFFFFF" stroke-width="2"/>
+    </g>
+    <line x1="444" y1="119" x2="444" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="460" y1="119" x2="460" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="476" y1="119" x2="476" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="492" y1="119" x2="492" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="508" y1="119" x2="508" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="524" y1="119" x2="524" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="540" y1="119" x2="540" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="556" y1="119" x2="556" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="572" y1="119" x2="572" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="588" y1="119" x2="588" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="604" y1="119" x2="604" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="620" y1="119" x2="620" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="636" y1="119" x2="636" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="652" y1="119" x2="652" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="668" y1="119" x2="668" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/><line x1="684" y1="119" x2="684" y2="137" stroke="#EAF1F9" stroke-opacity=".55" stroke-width="1.2"/>
+    <rect x="380" y="142" width="370" height="24" rx="4" fill="#174A84" stroke="#FFFFFF" stroke-width="2"/>
+    <g fill="#1E5A9C" stroke="#EAF1F9" stroke-width="1.4"><circle cx="455" cy="154" r="5"/><circle cx="515" cy="154" r="5"/><circle cx="615" cy="154" r="5"/><circle cx="675" cy="154" r="5"/></g>
+    <g stroke="#EAF1F9" stroke-width="1.6"><line x1="334" y1="186" x2="356" y2="186"/><line x1="774" y1="186" x2="796" y2="186"/><line x1="334" y1="198" x2="356" y2="198"/><line x1="774" y1="198" x2="796" y2="198"/><line x1="334" y1="210" x2="356" y2="210"/><line x1="774" y1="210" x2="796" y2="210"/><line x1="334" y1="222" x2="356" y2="222"/><line x1="774" y1="222" x2="796" y2="222"/><line x1="334" y1="234" x2="356" y2="234"/><line x1="774" y1="234" x2="796" y2="234"/><line x1="334" y1="246" x2="356" y2="246"/><line x1="774" y1="246" x2="796" y2="246"/><line x1="334" y1="258" x2="356" y2="258"/><line x1="774" y1="258" x2="796" y2="258"/><line x1="334" y1="326" x2="356" y2="326"/><line x1="774" y1="326" x2="796" y2="326"/><line x1="334" y1="338" x2="356" y2="338"/><line x1="774" y1="338" x2="796" y2="338"/><line x1="334" y1="350" x2="356" y2="350"/><line x1="774" y1="350" x2="796" y2="350"/><line x1="334" y1="362" x2="356" y2="362"/><line x1="774" y1="362" x2="796" y2="362"/><line x1="334" y1="374" x2="356" y2="374"/><line x1="774" y1="374" x2="796" y2="374"/><line x1="334" y1="386" x2="356" y2="386"/><line x1="774" y1="386" x2="796" y2="386"/><line x1="334" y1="398" x2="356" y2="398"/><line x1="774" y1="398" x2="796" y2="398"/><line x1="334" y1="410" x2="356" y2="410"/><line x1="774" y1="410" x2="796" y2="410"/></g>
+    <rect x="356" y="166" width="418" height="258" rx="14" fill="#174A84" stroke="#FFFFFF" stroke-width="2.6"/>
+    <rect x="378" y="180" width="374" height="230" rx="6" fill="none" stroke="#EAF1F9" stroke-opacity=".5" stroke-width="1.2"/>
+    <g fill="none" stroke="#EAF1F9" stroke-width="1.6"><circle cx="396" cy="196" r="5.5"/><circle cx="734" cy="196" r="5.5"/><circle cx="396" cy="394" r="5.5"/><circle cx="734" cy="394" r="5.5"/></g>
+    <path d="M392 424 H738 L712 454 H418 Z" fill="#174A84" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="565" cy="444" r="4.5" fill="none" stroke="#EAF1F9" stroke-width="1.4"/>
+    <g fill="#174A84" stroke="#EAF1F9" stroke-width="1.6"><rect x="356" y="424" width="30" height="12"/><rect x="744" y="424" width="30" height="12"/></g>
+
+    <circle cx="565" cy="295" r="104" fill="#133F72" stroke="#FFFFFF" stroke-width="2.6"/>
+    <circle cx="565" cy="295" r="95" fill="none" stroke="#EAF1F9" stroke-opacity=".5" stroke-width="1"/>
+    <line x1="470" y1="295" x2="660" y2="295" stroke="#EAF1F9" stroke-opacity=".8" stroke-width="1.4"/>
+    <line x1="565" y1="200" x2="565" y2="390" stroke="#EAF1F9" stroke-opacity=".8" stroke-width="1.4"/>
+    <circle cx="565" cy="295" r="7" fill="#EAC148"/>
+    <g font-family="Archivo, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">
+      <text x="520" y="271">Diagnose</text><text x="610" y="271">Design</text>
+      <text x="610" y="337">Implement</text><text x="520" y="337">Adapt</text>
+    </g>
+    <g font-family="Archivo, sans-serif" font-size="10" font-weight="700" fill="#EAC148" text-anchor="middle" letter-spacing="1.2">
+      <text x="520" y="254">01</text><text x="610" y="254">02</text><text x="610" y="320">03</text><text x="520" y="320">04</text>
+    </g>
+    <g fill="none" stroke="#EAC148" stroke-width="4" stroke-linecap="round"><path d="M 472.9 212.0 A 124 124 0 0 1 603.3 177.1" marker-end="url(#ah)"/><path d="M 648.0 202.9 A 124 124 0 0 1 682.9 333.3" marker-end="url(#ah)"/><path d="M 657.1 378.0 A 124 124 0 0 1 526.7 412.9" marker-end="url(#ah)"/><path d="M 482.0 387.1 A 124 124 0 0 1 447.1 256.7" marker-end="url(#ah)"/></g>
+    <text x="565" y="474" text-anchor="middle" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="2.2" fill="#C9D8EA">ENGINE BLOCK &#183; THE FLYWHEEL REPEATS</text>
+
+    <g fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round">
+      <path d="M774 244 C 800 244, 800 295, 816 295"/><path d="M774 346 C 800 346, 800 295, 816 295"/><path d="M774 295 H 816"/>
+    </g>
+    <g stroke="#FFFFFF" stroke-width="2" fill="none">
+      <path d="M818 255 L818 335 L852 311 L852 279 Z"/>
+      <line x1="825" y1="265" x2="825" y2="325"/><line x1="832" y1="270" x2="832" y2="320"/><line x1="839" y1="275" x2="839" y2="315"/><line x1="846" y1="280" x2="846" y2="310"/>
+    </g>
+    <text x="835" y="243" text-anchor="middle" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.8" fill="#EAC148">FILTER</text>
+    <line x1="854" y1="295" x2="878" y2="295" stroke="#EAC148" stroke-width="3.5" marker-end="url(#ah)"/>
+
+    <rect x="884" y="168" width="240" height="256" fill="#1E5A9C" stroke="#EAF1F9" stroke-width="1.8"/>
+    <text x="904" y="200" font-family="Archivo, sans-serif" font-size="14" font-weight="700" letter-spacing="1.4" fill="#FFFFFF">REDUCE INTERFERENCE</text>
+    <line x1="904" y1="214" x2="1104" y2="214" stroke="#EAC148" stroke-width="1.5"/>
+    <g font-family="Archivo, sans-serif" font-size="15" fill="#EAF1F9"><text x="912" y="241.0" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#8722;</text><text x="930" y="240.0">Overload</text><text x="912" y="266.5" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#8722;</text><text x="930" y="265.5">Friction</text><text x="912" y="292.0" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#247;</text><text x="930" y="291.0">Confusion</text><text x="912" y="317.5" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#247;</text><text x="930" y="316.5">Fear</text><text x="912" y="343.0" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#247;</text><text x="930" y="342.0">Ego &amp; Politics</text><text x="912" y="368.5" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#247;</text><text x="930" y="367.5">Misalignment</text><text x="912" y="394.0" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-weight="800" font-size="19" fill="#EAC148">&#247;</text><text x="930" y="393.0">Decision Drag</text></g>
+    <text x="904" y="412" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.4" fill="#C9D8EA"><tspan fill="#EAC148" font-size="13">&#8722;</tspan> SUBTRACTION &#160;&#160; <tspan fill="#EAC148" font-size="13">&#247;</tspan> DIVIDER</text>
+    <line x1="1130" y1="295" x2="1170" y2="295" stroke="#EAC148" stroke-width="3.5" marker-end="url(#ah)"/>
+    <text x="1150" y="283" text-anchor="middle" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.8" fill="#EAC148">OUT</text>
+
+    <rect x="1178" y="168" width="238" height="256" fill="#133F72" stroke="#EAC148" stroke-width="2.4"/>
+    <text x="1297" y="218" text-anchor="middle" font-family="Bricolage Grotesque, Archivo, sans-serif" font-size="24" font-weight="800" letter-spacing="2.4" fill="#FFFFFF">PERFORMANCE</text>
+    <line x1="1198" y1="240" x2="1396" y2="240" stroke="#EAC148" stroke-width="1.5"/>
+    <text x="1198" y="276" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.8" fill="#C9D8EA">BY DESIGN</text>
+    <g font-family="Archivo, sans-serif" font-size="16.5" font-weight="600" fill="#FFFFFF"><rect x="1204" y="310" width="8" height="8" transform="rotate(45 1208 314)" fill="none" stroke="#EAC148" stroke-width="1.4"/><text x="1226" y="320">Results</text><rect x="1204" y="344" width="8" height="8" transform="rotate(45 1208 348)" fill="none" stroke="#EAC148" stroke-width="1.4"/><text x="1226" y="354">Sustainability</text><rect x="1204" y="378" width="8" height="8" transform="rotate(45 1208 382)" fill="none" stroke="#EAC148" stroke-width="1.4"/><text x="1226" y="388">Repeatability</text></g>
+  </svg>
+  </div>
+  <figcaption id="figcap"><b>How to read the blueprint.</b> The engine reads left to right, with capacity feeding it as the first of the two levers. The flywheel at its centre turns diagnosis into design, design into implementation and implementation into adaptation before starting again. What the engine produces then passes through a filter that strips out avoidable interference while keeping necessary constraint, so that performance arrives at the end of the line as results, sustainability and repeatability.</figcaption>
+</figure>
+      <div class="split">
+        <div class="prose">
+          <p>The model rests on a single relationship in which performance equals capacity minus interference. Capacity is everything the system can bring to the work when it is functioning well. It covers the energy and skill of the people involved along with the quality of their relationships, the clarity of their roles and the tools they have to work with. Interference is anything that consumes that capacity without creating equivalent value, such as overload, friction, confusion or the slow drag of decisions that never quite get made.</p>
+          <p>Performance is whatever remains once interference has taken its share. Two groups with similar talent can therefore produce very different results, because one has built an environment that lets its capacity reach the work while the other loses a large part of it to noise before anything useful happens.</p>
+          <p>The engine metaphor was chosen with care. An engine can contain excellent individual components and still perform poorly if those components are misaligned, overloaded or unable to transfer energy to where it is needed. Organisations behave in much the same way, which is why a collection of well intentioned initiatives rarely adds up to better performance unless someone is paying attention to how the parts connect.</p>
+          <p>The blueprint gives those three outputs equal weight, because results without sustainability produce a short lived peak while sustainability without meaningful results amounts to little more than comfort. Repeatability is what turns an isolated success into a capability the organisation can rely on season after season.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">The output</span>
+            <h3>What the engine is built to produce</h3>
+            <ul>
+              <li><b>Results.</b> The outcomes the environment exists to deliver, measured honestly.</li>
+              <li><b>Sustainability.</b> Results produced without exhausting the people who produce them.</li>
+              <li><b>Repeatability.</b> Success the system can reproduce next week without heroics.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section pb" id="elements" aria-labelledby="h-elements">
+      <div class="sec-head"><span class="eyebrow">The components</span><h2 id="h-elements">What capacity and interference are made of</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>Each side of the equation has two parts. The difference between them explains a great deal about why effort alone so rarely fixes a struggling environment. Capacity is made up of additions and multipliers. An addition puts a fixed amount of capacity into the system, such as a new hire, a new skill, protected recovery time or a better tool. A multiplier raises the value of everything already there, which is what trust, clarity, shared standards and good leadership do for a group whose talent has not changed at all.</p>
+          <p>Interference mirrors that structure with subtractions and dividers. A subtraction takes a fixed amount away, whether it is a meeting that produces nothing, data entered twice or a travel day planned badly. A divider cuts into every unit of capacity at once, which is why unclear priorities, fear, politics and decisions that never land do so much more damage than their visibility suggests.</p>
+          <p>All four types show up in resources and logistics, in the physical environment and the culture and in the systems, people and processes that carry the work, so the same category can sit on either side of the equation depending on how it has been designed.</p>
+          <p>Applied to the seven forms of interference, the test is revealing. The doubling test in the panel alongside makes the pattern clear. Overload and friction mostly subtract, while the remaining five forms mostly divide, which goes a long way to explaining why working harder rarely fixes them. Extra effort is itself an addition, which means it gets divided along with everything else the moment it enters a divided system.</p>
+          <p>The practical order for a leader follows from that. Remove dividers first, protect and build multipliers next, cut the subtractions that remain and add capacity last, even though adding is where many organisations instinctively start.</p>
+        </div>
+        <div class="aside">
+          <div class="panel types">
+            <span class="eyebrow">The four types</span>
+            <ul>
+              <li><span class="sym">+</span><b>Additions.</b> Put a fixed amount of capacity into the system.</li>
+              <li><span class="sym">&times;</span><b>Multipliers.</b> Raise the value of everything already there.</li>
+              <li><span class="sym">&minus;</span><b>Subtractions.</b> Take a fixed amount of capacity away.</li>
+              <li><span class="sym">&divide;</span><b>Dividers.</b> Cut into every unit of capacity at once.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">The doubling test</span>
+            <p>Ask whether an effect would double if everything else in the environment doubled. A proportional effect marks a multiplier or a divider, while a fixed effect marks an addition or a subtraction.</p>
+          </div>
+        </div>
+      </div>
+      <div class="matrix-wrap full">
+        <h3 class="matrix-title">Where the four types fall across the organisation</h3>
+        <p class="lead-in">The examples are drawn from high performance environments. Each category can add or multiply capacity when it is well designed, or subtract and divide it when it is not.</p>
+        <div class="matrix-scroll">
+        <table class="matrix">
+          <thead><tr><th scope="col">Category</th><th scope="col"><span class="sym">+</span>Addition</th><th scope="col"><span class="sym">&times;</span>Multiplier</th><th scope="col"><span class="sym">&minus;</span>Subtraction</th><th scope="col"><span class="sym">&divide;</span>Divider</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Resources</th><td>Extra staff, budget or equipment</td><td>Resources placed where the real constraint is</td><td>Budget spent on low value work</td><td>Resources spread thinly across competing priorities</td></tr>
+            <tr><th scope="row">Environment</th><td>Recovery spaces and better facilities</td><td>A setting where the standard is visible every day</td><td>Noise, poor facilities and time lost between sites</td><td>An environment that rewards looking busy</td></tr>
+            <tr><th scope="row">Culture</th><td>New rituals, recognition and onboarding</td><td>Trust, candour and shared standards</td><td>Time lost to unresolved conflict</td><td>Fear, ego and politics</td></tr>
+            <tr><th scope="row">Logistics</th><td>Better scheduling and travel support</td><td>Planning that removes friction before it arrives</td><td>Travel days, waiting and double handling</td><td>Constant rescheduling and late changes</td></tr>
+            <tr><th scope="row">Systems</th><td>A new data platform or reporting tool</td><td>One version of the truth that everyone uses</td><td>Manual reporting and duplicated entry</td><td>Systems that contradict each other</td></tr>
+            <tr><th scope="row">People</th><td>Hires, development and specialist support</td><td>Leaders who lift the people around them</td><td>Absence, injury and turnover</td><td>Misaligned people who dilute the effort of others</td></tr>
+            <tr><th scope="row">Processes</th><td>A documented workflow</td><td>Clear decision rights and ownership</td><td>Unnecessary approvals and handoffs</td><td>Decisions revisited again and again</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pb" id="roots" aria-labelledby="h-roots">
+      <div class="sec-head"><span class="eyebrow">Lineage</span><h2 id="h-roots">Where the equation comes from</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>The equation will feel familiar to anyone who has read Timothy Gallwey. His work on the inner game, which began with The Inner Game of Tennis in 1974, is often summarised as performance equals potential minus interference. His central argument was that the largest obstacles to a player's performance are usually generated inside the player's own head. The Performance Engine takes that insight one level out to the environment around the individual, where the interference that matters most in a professional organisation is often built into the schedule, the meeting structure and the unspoken rules about who is allowed to disagree with whom.</p>
+          <p>The idea that the system shapes the result has a long history in management as well. In Out of the Crisis, W. Edwards Deming estimated that around 94 percent of the problems and possibilities for improvement in an organisation belong to the system, leaving only a small share attributable to the individuals working inside it. He placed responsibility for that system squarely with management, which is where the Performance Engine places it too. In sport the same logic applies whenever a head coach is replaced while the structure around the role stays exactly as it was. The new appointment then inherits the same interference that limited the last one.</p>
+          <p>Research on teams points in the same direction. Ruth Wageman and J. Richard Hackman's work on senior leadership teams produced a finding that is now widely cited in team coaching: roughly sixty percent of the difference in how well a team performs comes from how it has been designed, around thirty percent from how it was launched and only about ten percent from the coaching it receives once it is underway. That is a sobering distribution for leaders, because so much leadership energy goes into the final ten percent while the conditions that account for most of the outcome are left to chance.</p>
+          <p>Occupational psychology offers a fourth lens. The job demands and resources model developed by Arnold Bakker and Evangelia Demerouti shows that exhaustion and disengagement grow when the demands placed on people outstrip the resources available to meet them, while engagement grows when resources are strong enough to turn demand into challenge.</p>
+          <p>The Performance Engine borrows its equation openly from this lineage. What it adds is an operational structure a leader can actually run, with named components of capacity, named forms of interference and a repeating cycle for working on both.</p>
+          <p>For a leader the practical implication of this lineage is uncomfortable and useful in equal measure. If most of the variation in performance sits in the design of the environment, most of the room for improvement sits there too, which makes the time spent examining that design some of the most valuable time a leadership group can spend.</p>
+        </div>
+        <div class="aside">
+          <div class="panel sources">
+            <span class="eyebrow">Sources</span>
+            <ul>
+              <li>Gallwey, T. (1974). <i>The Inner Game of Tennis</i>. Random House.</li>
+              <li>Deming, W. E. (1986). <i>Out of the Crisis</i>. MIT Center for Advanced Engineering Study.</li>
+              <li>Wageman, R., Nunes, D. A., Burruss, J. A. &amp; Hackman, J. R. (2008). <i>Senior Leadership Teams</i>. Harvard Business School Press.</li>
+              <li>Bakker, A. B. &amp; Demerouti, E. (2007). The job demands and resources model: state of the art. <i>Journal of Managerial Psychology</i>, 22(3).</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">In one line</span>
+            <p>Most of the difference in performance sits in the design of the environment, which is the part leaders control and the part they most often leave to chance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pb" id="illusion" aria-labelledby="h-illusion">
+      <div class="sec-head"><span class="eyebrow">The problem</span><h2 id="h-illusion">The high performance illusion</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>Many environments that describe themselves as high performance are really high output environments. They obsess over the visible result, reward short term success and pay little attention to the condition of the system producing it. None of the failures that follow looks like failure at the time. The blueprint identifies three of them, in which results are placed above people, short term wins are placed above long term health and the human cost of execution is ignored because it rarely appears in the numbers leaders review each week.</p>
+          <p>The cost arrives later and usually all at once. When capacity is ignored and interference is tolerated for long enough, the consequences become predictable. In sport they are especially visible because bodies break down and fatigue shows up in decisions made at speed. Every professional environment pays the same costs in some form, even where nobody is keeping score.</p>
+          <p>The deeper problem is that those costs are usually misattributed. Burnout gets treated as an individual resilience issue, a poor decision gets traced to the person who made it and turnover gets explained through pay or personality. Each explanation may be partly true, yet together they keep attention fixed on individuals and away from the design choices that made those outcomes more likely in the first place.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">The cost</span>
+            <h3>When capacity is ignored and interference is tolerated</h3>
+            <ul>
+              <li>Burnout across staff and athletes</li>
+              <li>Injuries that cluster around demanding periods</li>
+              <li>Poor decisions made under fatigue</li>
+              <li>High turnover among the people you can least afford to lose</li>
+              <li>Fragile performance that holds only while nothing goes wrong</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="capacity" aria-labelledby="h-capacity">
+      <div class="sec-head"><span class="eyebrow">Lever one</span><h2 id="h-capacity">Building capacity</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>Capacity is the engine of sustainable performance. It makes good performance easier to produce, easier to repeat and more resilient when conditions change, which is why the blueprint treats it as something leaders build on purpose and keep investing in long after the initial effort has been recognised.</p>
+          <p>The model names five components, each of which can be strong or thin in a given environment, with the thinnest usually setting the ceiling for everything else. Each is described below alongside the signs that it is running thin and a first move that any leader can make within a week.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">Why it matters</span>
+            <p>Capacity makes performance easier, repeatable and resilient. The environments that invest in it consistently find that results become less dependent on any single person.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rows full">
+        <div class="row">
+          <div><span class="tag">Component 1</span><h3>People &amp; Energy</h3><span class="type"><span class="sym">+</span>Mainly additions</span></div>
+          <div class="def"><p>The physical, cognitive and emotional resources available to do the work well. Capacity cannot be separated from recovery, health, workload or the quality of the working environment, because a tired and overstretched group has less of everything else to offer.</p><p class="thin">When it is thin, staff are busy all the time yet struggle to find space for the work that matters most, sickness and minor injury cluster around demanding periods and the same people are always the last to leave.</p></div>
+          <div class="move"><span class="tag">First move</span>Map staff workload against recovery with the same seriousness you apply to athletes, then protect a minimum recovery standard through the busiest weeks of the year. <a href="https://stperformanceglobal.github.io/Shadow-load/" target="_blank" rel="noopener">Shadow Load</a> covers this in depth.</div>
+        </div>
+        <div class="row pb">
+          <div><span class="tag">Component 2</span><h3>Skills &amp; Capability</h3><span class="type"><span class="sym">+</span>Additions that multiply</span></div>
+          <div class="def"><p>This covers the technical, tactical, leadership and decision making capability each role requires. Development expands what the system can reliably ask people to do, which makes it one of the few investments that raises the ceiling on what the organisation can attempt.</p><p class="thin">When it is thin, work is repeatedly escalated to the same senior people, new staff take a long time to become useful and development conversations happen only once someone is already struggling.</p></div>
+          <div class="move"><span class="tag">First move</span>Identify the three decisions each role makes most often and build deliberate practice around them, including for staff whose own development usually stops once they are hired.</div>
+        </div>
+        <div class="row">
+          <div><span class="tag">Component 3</span><h3>Cohesion &amp; Trust</h3><span class="type"><span class="sym">&times;</span>Mainly multipliers</span></div>
+          <div class="def"><p>This is the quality of relationships that allows information to move quickly, disagreement to stay productive and people to act without unnecessary self protection.</p><p class="thin">When it is thin, problems surface late, meetings stay polite while the real conversations happen afterwards in smaller groups and people protect their own area before they help another.</p></div>
+          <div class="move"><span class="tag">First move</span>Name one recurring disagreement the group avoids and give it a structured place on the agenda, with a leader modelling how to disagree without penalty.</div>
+        </div>
+        <div class="row">
+          <div><span class="tag">Component 4</span><h3>Role Clarity &amp; Processes</h3><span class="type"><span class="sym">&times;</span>Mainly multipliers</span></div>
+          <div class="def"><p>Clear ownership, decision rights and repeatable processes reduce wasted energy and make coordinated execution far more likely. When people know what they own and how work moves between them, less capacity is lost to working out who should be doing what.</p><p class="thin">When it is thin, two people complete the same task while a third falls between them, decisions get revisited because nobody was sure they had been made and new staff learn the real process by trial and error.</p></div>
+          <div class="move"><span class="tag">First move</span>Write down who owns each of the ten most frequent decisions in your area and who needs to be consulted, then test that map against a real week of work.</div>
+        </div>
+        <div class="row">
+          <div><span class="tag">Component 5</span><h3>Tools &amp; Infrastructure</h3><span class="type"><span class="sym">+</span>Mainly additions</span></div>
+          <div class="def"><p>Technology, staffing, information and facilities exist to support the work, although each one can just as easily add friction when it is chosen or maintained poorly.</p><p class="thin">When it is thin, data is entered twice, reports are built by hand every week and staff keep private spreadsheets because the official system does not give them what they need.</p></div>
+          <div class="move"><span class="tag">First move</span>Ask each staff member which single tool or process costs them the most time for the least value, then fix or remove the most common answer.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pb" id="interference" aria-labelledby="h-interference">
+      <div class="sec-head"><span class="eyebrow">Lever two</span><h2 id="h-interference">Reducing interference</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>Interference is anything that consumes capacity without creating equivalent value. The model names seven common forms, all of which most leaders will recognise in their own environment within a few minutes of honest looking.</p>
+          <p>The filter in the blueprint matters here. Every serious performance environment contains pressure, constraint and competing demands, so any promise to eliminate interference entirely deserves suspicion. The objective is to separate the constraint that comes with the job from the waste that simply accumulates, then reduce the unnecessary portion before it reaches the people doing the work.</p>
+          <p>Interference rarely announces itself. It builds one reasonable request, one extra meeting and one unresolved tension at a time, which is why it has to be looked for deliberately and on a regular rhythm.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">The filter question</span>
+            <p>Is this pressure part of the job we have chosen to do, or is it waste that our own design has created? Keep the first and reduce the second before it reaches the work.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rows int full">
+        <div class="row row-labels print-only"><span>Form and type</span><span>What it looks like</span><span>First move</span></div>
+        <div class="row"><div><span class="tag">Form 1</span><h3>Overload</h3><span class="type"><span class="sym">&minus;</span>Subtraction</span></div><div class="def"><span class="tag">What it looks like</span>There are more priorities than people, everything is labelled urgent and nothing is ever removed from the list.</div><div class="move"><span class="tag">First move</span>Keep a stop list alongside the priority list, so that every new commitment names what it replaces.</div></div>
+        <div class="row"><div><span class="tag">Form 2</span><h3>Friction</h3><span class="type"><span class="sym">&minus;</span>Subtraction</span></div><div class="def"><span class="tag">What it looks like</span>Simple tasks pass through several steps, approvals and handoffs, so work that should take an hour takes a week.</div><div class="move"><span class="tag">First move</span>Walk one routine task from start to finish and remove every step nobody can justify.</div></div>
+        <div class="row"><div><span class="tag">Form 3</span><h3>Confusion</h3><span class="type"><span class="sym">&divide;</span>Divider</span></div><div class="def"><span class="tag">What it looks like</span>People work hard in slightly different directions because priorities, standards or roles have never been made explicit.</div><div class="move"><span class="tag">First move</span>Write the three priorities for the next period on one page and check that every staff member would describe them the same way.</div></div>
+        <div class="row"><div><span class="tag">Form 4</span><h3>Fear</h3><span class="type"><span class="sym">&divide;</span>Divider</span></div><div class="def"><span class="tag">What it looks like</span>People withhold bad news, avoid disagreement and choose the defensible option over the right one.</div><div class="move"><span class="tag">First move</span>Meet the next piece of bad news with curiosity before judgement and let the group see that you did.</div></div>
+        <div class="row"><div><span class="tag">Form 5</span><h3>Ego &amp; Politics</h3><span class="type"><span class="sym">&divide;</span>Divider</span></div><div class="def"><span class="tag">What it looks like</span>Energy goes into status, territory and credit while decisions get shaped by who proposed them more than by their merit.</div><div class="move"><span class="tag">First move</span>Review options before names are attached to them, so the idea can be judged apart from its author.</div></div>
+        <div class="row"><div><span class="tag">Form 6</span><h3>Misalignment</h3><span class="type"><span class="sym">&divide;</span>Divider</span></div><div class="def"><span class="tag">What it looks like</span>Departments optimise for their own measures in ways that undercut each other, so the whole performs below the sum of its parts.</div><div class="move"><span class="tag">First move</span>Agree one shared outcome measure that every department contributes to and review it together each month.</div></div>
+        <div class="row"><div><span class="tag">Form 7</span><h3>Decision Drag</h3><span class="type"><span class="sym">&divide;</span>Divider</span></div><div class="def"><span class="tag">What it looks like</span>Decisions are delayed, revisited or escalated repeatedly, which leaves people waiting and capacity sitting idle.</div><div class="move"><span class="tag">First move</span>Give anything discussed more than twice a named decision owner and a date by which the decision will be made.</div></div>
+      </div>
+    </section>
+
+    <section class="section pb" id="balance" aria-labelledby="h-balance">
+      <div class="sec-head"><span class="eyebrow">The relationship</span><h2 id="h-balance">Working both sides of the equation</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>Capacity and interference have to be considered together. Adding capability to a poorly designed system can simply give that system more resources to waste, which is what happens when an organisation hires more staff into an environment whose real constraint is unclear decision rights. Removing friction without building capability has the opposite problem, producing a calmer environment that still lacks the skill or energy to perform when it counts.</p>
+          <p>In practice every improvement cycle should include at least one change on each side, which also guards against a familiar bias in which builders keep adding programmes and fixers keep removing problems while half of the engine goes untouched.</p>
+          <p>Pressure deserves particular attention because it sits on both sides. Used well, pressure sharpens attention and builds capability for the moments that matter. Used as the default operating system, it becomes one of the largest sources of interference an organisation can generate. The blueprint's position is that pressure belongs inside the system as a tool that is applied deliberately and then released. The design question is whether your environment can tell the difference between those two uses.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">Pair every cycle</span>
+            <ul>
+              <li>At least one change that builds capacity</li>
+              <li>At least one change that removes interference</li>
+              <li>A named owner and a review date for each</li>
+            </ul>
+          </div>
+          <blockquote class="pull"><p>Pressure should be a tool inside the system, applied on purpose and then released.</p><cite>Design philosophy</cite></blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="flywheel" aria-labelledby="h-flywheel">
+      <div class="sec-head"><span class="eyebrow">The mechanism</span><h2 id="h-flywheel">The flywheel</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>The flywheel at the centre of the engine is the operating mechanism that keeps the model from becoming a static checklist. It runs through four stages in sequence and then begins again, because high performance environments have no final state and the conditions that shaped this season's design will not hold for long. The action points under each stage are deliberately small, since a flywheel gains momentum through repeated turns far more than through any single push.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">Four system rules</span>
+            <ul>
+              <li>Make good behaviour easy</li>
+              <li>Make bad behaviour hard</li>
+              <li>Make success repeatable</li>
+              <li>Reduce reliance on heroics</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="stages">
+        <div class="stage-row">
+        <div class="stage s1">
+          <span class="num">01</span><h3>Diagnose</h3>
+          <p>Start with the system before the symptom. The task is to identify where capacity is strong, where it is constrained and where interference is absorbing time, energy or attention. Good diagnosis combines data with the lived experience of the people inside the environment, because each source catches what the other misses.</p>
+          <div class="actions"><span class="tag">Action points</span><ul>
+            <li>Run the Engine Audit with the leadership group and again with the staff who do the work, then compare the two.</li>
+            <li>Keep an interference log for two weeks, recording each time work is delayed, repeated or abandoned and what caused it.</li>
+            <li>Use the doubling test to mark each finding as an addition, multiplier, subtraction or divider.</li>
+                      </ul></div>
+        </div>
+        <div class="stage s2">
+          <span class="num">02</span><h3>Design</h3>
+          <p>Translate the diagnosis into deliberate choices about roles, processes, resources, communication and standards. Good design makes the desired behaviour easier to carry out and reduces dependence on memory, personality or individual heroics.</p>
+          <div class="actions"><span class="tag">Action points</span><ul>
+            <li>Select no more than three changes with at least one on each side of the equation, tackling dividers before adding capacity.</li>
+            <li>For each change, write down the behaviour you expect to see and how you will know it is happening.</li>
+            <li>Test every design against the four system rules before it goes live.</li>
+          </ul></div>
+        </div>
+        </div>
+        <div class="stage-row sr2">
+        <div class="stage s3">
+          <span class="num">03</span><h3>Implement</h3>
+          <p>Put the design into the real operating environment, where theoretical quality meets schedule pressure, competing priorities and ordinary human behaviour. The test that matters at this stage is whether people can actually use what has been designed on a busy Tuesday.</p>
+          <div class="actions"><span class="tag">Action points</span><ul>
+            <li>Launch each change with the people who will use it, explaining the problem it solves.</li>
+            <li>Give every change a named owner and a date for its first review.</li>
+            <li>Protect the change through its first demanding week, which is when old habits are most likely to return.</li>
+          </ul></div>
+        </div>
+        <div class="stage s4">
+          <span class="num">04</span><h3>Adapt</h3>
+          <p>Treat feedback as part of the design. When something does not work as intended, the system has learned something useful about itself. Adaptation keeps the model responsive to changing people, demands and context while the underlying philosophy stays intact.</p>
+          <div class="actions"><span class="tag">Action points</span><ul>
+            <li>Review each change at thirty, sixty and ninety days, asking what shifted in behaviour, decisions and output.</li>
+            <li>Keep what works, adjust what nearly works and stop what does not.</li>
+            <li>Record each cycle so the organisation builds a memory of its own design decisions.</li>
+          </ul></div>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="practice" aria-labelledby="h-practice">
+      <div class="sec-head"><span class="eyebrow">Application</span><h2 id="h-practice">Putting the engine to work</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>A framework that lives only on a wall changes very little. The value of the Performance Engine comes from running it on a regular rhythm with real decisions attached, until the questions it asks become part of how the leadership group thinks.</p>
+          <p>The ninety day cycle below is a practical starting point for a team, a department or a whole organisation. It follows the five steps set out in the blueprint and can be scaled up or down to suit the size of the group.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">Before you start</span>
+            <p>Agree who owns the cycle, when the weekly check in happens and where the interference log will live. A cycle without an owner stalls in its first busy week.</p>
+          </div>
+        </div>
+      </div>
+      <ol class="cycle">
+        <li><span class="num">1</span><div><h3>Map current capacity</h3><span class="when">Weeks one and two</span></div><p>Score each of the five capacity components with the leadership group and separately with the people doing the work. The gaps between the two views are often more revealing than the scores themselves.</p></li>
+        <li><span class="num">2</span><div><h3>Find the largest interference</h3><span class="when">Weeks one and two</span></div><p>Use the interference log to rank the seven forms by cost and mark each finding as a subtraction or a divider, then separate necessary constraint from avoidable friction before choosing where to act.</p></li>
+        <li><span class="num">3</span><div><h3>Choose a small number of changes</h3><span class="when">Week three</span></div><p>Select up to three design changes with at least one on each side of the equation, starting with the largest divider. Give each one an owner, a measure and a review date.</p></li>
+        <li><span class="num">4</span><div><h3>Implement in the real environment</h3><span class="when">Weeks four to ten</span></div><p>Run the changes through normal operating conditions and watch what shifts in behaviour, decision making and output. Hold a fifteen minute check in each week that asks only what helped, what got in the way and what needs adjusting.</p></li>
+        <li><span class="num">5</span><div><h3>Adapt and repeat</h3><span class="when">Weeks eleven to thirteen</span></div><p>Review the evidence, keep what worked and feed the lessons into the next diagnosis. The second cycle is usually faster and sharper than the first because the organisation has begun to learn how it actually works.</p></li>
+      </ol>
+
+      <div class="audit pb" id="audit">
+        <div class="audit-head">
+          <div><span class="eyebrow">Diagnostic tool</span><h3>The Engine Audit</h3></div>
+          <p>Rate each capacity component from one to five, where five means it is a genuine strength in your environment, then rate each form of interference from one to five, where five means it is costing you heavily. The symbols show whether each item usually adds, multiplies, subtracts or divides. <span class="audit-live">The ratings shown are an example starting point, so change them to reflect what you actually see.</span></p>
+        </div>
+
+        <div class="audit-grid audit-live" id="auditLive">
+          <div class="audit-col cap-col"><h4>Capacity <span>1 thin &middot; 5 strong</span></h4><div id="capRows"></div></div>
+          <div class="audit-col int-col"><h4>Interference <span>1 light &middot; 5 heavy</span></h4><div id="intRows"></div></div>
+          <div class="readout" aria-live="polite">
+            <span class="eyebrow">Your engine reading</span>
+            <div class="meter"><div class="meter-top"><span>Capacity</span><output id="capOut">0%</output></div><div class="track"><div class="fill" id="capFill"></div></div></div>
+            <div class="meter"><div class="meter-top"><span>Interference load</span><output id="intOut">0%</output></div><div class="track"><div class="fill int" id="intFill"></div></div></div>
+            <div class="net"><div class="big" id="netOut">0</div><span class="state" id="netState">Reading</span><p id="netText"></p></div>
+            <div class="start"><span class="tag">Start here</span><p id="startCap"></p><p id="startInt"></p></div>
+            <p class="example-note" id="exampleNote">Example ratings shown.</p>
+            <button type="button" class="reset" id="resetBtn">Reset to the example</button>
+          </div>
+        </div>
+
+        <div class="audit-print" aria-hidden="true">
+          <div class="ap-col"><h4>Capacity <span>1 thin &middot; 5 strong</span></h4>
+            <div class="ap-row"><span><span class="sym">+</span>People &amp; Energy</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">+</span>Skills &amp; Capability</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&times;</span>Cohesion &amp; Trust</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&times;</span>Role Clarity &amp; Processes</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">+</span>Tools &amp; Infrastructure</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <p class="ap-total">Capacity total <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; / 25</b></p>
+          </div>
+          <div class="ap-col"><h4>Interference <span>1 light &middot; 5 heavy</span></h4>
+            <div class="ap-row"><span><span class="sym">&minus;</span>Overload</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&minus;</span>Friction</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&divide;</span>Confusion</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&divide;</span>Fear</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&divide;</span>Ego &amp; Politics</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&divide;</span>Misalignment</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <div class="ap-row"><span><span class="sym">&divide;</span>Decision Drag</span><span class="boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>
+            <p class="ap-total">Interference total <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; / 35</b></p>
+          </div>
+          <div class="ap-reading"><b>Reading the result.</b> Convert each total to a percentage and subtract the interference percentage from the capacity percentage. A reading of 30 or more suggests a strong engine to protect and a reading between 10 and 29 suggests capacity is present while interference takes a real share. Below 10, the system is likely relying on effort to cover design problems. Start with the lowest scoring capacity component and the highest scoring form of interference, giving dividers priority where scores are equal.</div>
+        </div>
+
+        <div class="questions">
+          <span class="eyebrow">Questions for the leadership group</span>
+          <ol>
+            <li>Where are we relying on heroics to deliver something the system should produce routinely?</li>
+            <li>Which form of interference would our staff name first and would we have named the same one?</li>
+            <li>What have we added this year without removing anything to make room for it?</li>
+            <li>Who would we struggle to replace next week and what does that tell us about our design?</li>
+            <li>When did we last change a process because of feedback from the people using it?</li>
+            <li>Which pressure in our environment is a deliberate tool and which has simply become the default?</li>
+            <li>Which of our dividers are we currently trying to solve with additions?</li>
+          </ol>
+        </div>
+      </div>
+      <div class="test">
+        <div class="prose"><p>The central test for each cycle comes straight from the blueprint and asks whether the system makes good performance easier to produce again tomorrow. An honest yes means the engine is turning, while an honest no simply gives the next cycle its starting point.</p></div>
+        <blockquote class="pull"><p>Does the system make good performance easier to produce again tomorrow?</p><cite>The central test</cite></blockquote>
+      </div>
+    </section>
+
+    <section class="section pb" id="limits" aria-labelledby="h-limits">
+      <div class="sec-head"><span class="eyebrow">Boundaries</span><h2 id="h-limits">What the model is not</h2></div>
+      <div class="split">
+        <div class="prose">
+          <p>The Performance Engine is sometimes misread as an argument for softer standards. It makes no case for lowering standards, avoiding pressure or removing accountability. The model separates productive challenge from unnecessary interference so that a well designed environment can hold demanding standards while reducing the waste that makes those standards harder to meet.</p>
+          <p>If anything, the model raises the standard for leaders, because asking for more effort requires very little design work while building an environment in which excellent performance becomes the normal output of ordinary weeks requires a great deal. It places responsibility for the conditions of performance with the people who hold the authority to change them.</p>
+          <p>Professional baseball offers a useful reference point. When the minor league system was reformed to remove barriers and add support for players, the intent was better development through better conditions. The Performance Engine applies the same lens one layer out to the staff and systems around the player, where the equation is just as real and far less often measured.</p>
+          <p>It is also no substitute for judgement. The model gives a leadership group a shared language and a disciplined rhythm, yet the decisions about which constraint is necessary and which pressure is useful still belong to the people closest to the work and to the leaders accountable for the outcome.</p>
+        </div>
+        <div class="aside">
+          <div class="panel">
+            <span class="eyebrow">What it is not</span>
+            <ul>
+              <li>An argument for lower standards</li>
+              <li>A way of avoiding pressure</li>
+              <li>A removal of accountability</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">Where it is most useful</span>
+            <p>The framework suits sport, leadership teams, performance departments and wider organisations. It is most useful when a group is working hard yet still experiencing recurring overload, inconsistent execution, unclear ownership, slow decisions or dependence on a few high effort individuals.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<section class="closing" id="close" aria-labelledby="h-close">
+  <div>
+    <span class="eyebrow">Closing</span>
+    <h2 id="h-close">The test for tomorrow <span class="script">performance, by design</span></h2>
+  </div>
+  <div>
+    <p>Sustainable high performance comes from deliberately building the capacity of the system and reducing the interference that prevents that capacity from becoming useful performance. Extracting more effort from people indefinitely produces a peak followed by a cost, which every experienced leader has seen at least once.</p>
+    <p>The work starts small with one audit, one interference log and three design changes. It compounds each time the flywheel turns, until the environment itself becomes the reason good performance keeps happening.</p>
+    <div class="cta">
+      <a class="btn gold" href="https://stperformanceglobal.github.io/st-performance-global/index.html" target="_blank" rel="noopener">Visit ST Performance</a>
+      <a class="btn gold" href="the-performance-engine.pdf" target="_blank" rel="noopener">Print PDF</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <span>ST Performance Global &nbsp; People. Leadership. Culture.</span>
+  <a href="https://stperformanceglobal.github.io/st-performance-global/index.html" target="_blank" rel="noopener">stperformanceglobal</a>
+</footer>
+
+<script>
+(function(){
+  var CAP=[
+    {id:"cap-energy",sym:"+",name:"People & Energy",move:"Map staff workload against recovery and protect a minimum recovery standard through the busiest weeks."},
+    {id:"cap-skills",sym:"+",name:"Skills & Capability",move:"Build deliberate practice around the three decisions each role makes most often."},
+    {id:"cap-trust",sym:"\u00D7",name:"Cohesion & Trust",move:"Give one avoided disagreement a structured place on the agenda."},
+    {id:"cap-roles",sym:"\u00D7",name:"Role Clarity & Processes",move:"Map ownership of the ten most frequent decisions and test it against a real week."},
+    {id:"cap-tools",sym:"+",name:"Tools & Infrastructure",move:"Fix or remove the tool or process staff say costs the most time for the least value."}
+  ];
+  var INT=[
+    {id:"int-overload",name:"Overload",sym:"\u2212",move:"Start a stop list so every new commitment names what it replaces."},
+    {id:"int-friction",name:"Friction",sym:"\u2212",move:"Walk one routine task end to end and remove every step nobody can justify."},
+    {id:"int-confusion",sym:"\u00F7",name:"Confusion",move:"Put the three priorities on one page and check everyone describes them the same way."},
+    {id:"int-fear",sym:"\u00F7",name:"Fear",move:"Meet the next piece of bad news with curiosity before judgement."},
+    {id:"int-ego",sym:"\u00F7",name:"Ego & Politics",move:"Review options before names are attached to them."},
+    {id:"int-align",sym:"\u00F7",name:"Misalignment",move:"Agree one shared outcome measure every department contributes to."},
+    {id:"int-drag",sym:"\u00F7",name:"Decision Drag",move:"Give anything discussed twice a named owner and a decision date."}
+  ];
+  var EX_CAP=[3,4,3,2,3], EX_INT=[4,3,2,2,2,3,4];
+  var state={cap:EX_CAP.slice(),int:EX_INT.slice()};
+
+  function build(list,host,key){
+    var el=document.getElementById(host);
+    list.forEach(function(item,i){
+      var row=document.createElement("div");row.className="rate";
+      var lbl=document.createElement("span");lbl.className="lbl";lbl.id=item.id+"-lbl";var sy=document.createElement("span");sy.className="sym";sy.setAttribute("aria-hidden","true");sy.textContent=item.sym;lbl.appendChild(sy);lbl.appendChild(document.createTextNode(item.name));
+      var sc=document.createElement("div");sc.className="scale";sc.setAttribute("role","radiogroup");sc.setAttribute("aria-labelledby",item.id+"-lbl");
+      for(var v=1;v<=5;v++){
+        var inp=document.createElement("input");inp.type="radio";inp.name=item.id;inp.id=item.id+"-"+v;inp.value=v;
+        if(state[key][i]===v)inp.checked=true;
+        (function(idx,val){inp.addEventListener("change",function(){state[key][idx]=val;update(false);});})(i,v);
+        var l=document.createElement("label");l.setAttribute("for",item.id+"-"+v);l.textContent=v;
+        sc.appendChild(inp);sc.appendChild(l);
+      }
+      row.appendChild(lbl);row.appendChild(sc);el.appendChild(row);
+    });
+  }
+  function sum(a){return a.reduce(function(s,x){return s+x;},0);}
+  function update(isExample){
+    var c=Math.round(sum(state.cap)/25*100), n=Math.round(sum(state.int)/35*100), net=c-n;
+    document.getElementById("capOut").textContent=c+"%";
+    document.getElementById("intOut").textContent=n+"%";
+    document.getElementById("capFill").style.width=c+"%";
+    document.getElementById("intFill").style.width=n+"%";
+    document.getElementById("netOut").textContent=(net>0?"+":"")+net;
+    var st=document.getElementById("netState"),tx=document.getElementById("netText");
+    if(net>=30){st.textContent="Strong engine";st.className="state";tx.textContent="Capacity is reaching the work. Protect what is working and keep the flywheel turning so it stays that way.";}
+    else if(net>=10){st.textContent="Running with drag";st.className="state drag";tx.textContent="The capacity is there, although interference is taking a real share of it before it reaches the work.";}
+    else{st.textContent="Under strain";st.className="state strain";tx.textContent="The system is likely relying on effort to cover design problems. Start with the two areas below.";}
+    var lo=0;state.cap.forEach(function(v,i){if(v<state.cap[lo])lo=i;});
+    var hi=0;state.int.forEach(function(v,i){var dv=INT[i].sym==="\u00F7",dh=INT[hi].sym==="\u00F7";if(v>state.int[hi]||(v===state.int[hi]&&dv&&!dh))hi=i;});
+    document.getElementById("startCap").innerHTML="<b>Build "+CAP[lo].name.replace("&","&amp;")+".</b> "+CAP[lo].move;
+    document.getElementById("startInt").innerHTML="<b>Reduce "+INT[hi].name.replace("&","&amp;")+(INT[hi].sym==="\u00F7"?", a divider":", a subtraction")+".</b> "+INT[hi].move;
+    document.getElementById("exampleNote").textContent=isExample?"Example ratings shown.":"Your ratings. Nothing is saved when you leave the page.";
+  }
+  document.getElementById("resetBtn").addEventListener("click",function(){
+    state.cap=EX_CAP.slice();state.int=EX_INT.slice();
+    CAP.forEach(function(it,i){document.getElementById(it.id+"-"+state.cap[i]).checked=true;});
+    INT.forEach(function(it,i){document.getElementById(it.id+"-"+state.int[i]).checked=true;});
+    update(true);
+  });
+  build(CAP,"capRows","cap");build(INT,"intRows","int");update(true);
+
+  /* Section rail highlight */
+  var links=[].slice.call(document.querySelectorAll(".rail a[href^='#']"));
+  var map={};links.forEach(function(a){map[a.getAttribute("href").slice(1)]=a;});
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){links.forEach(function(a){a.classList.remove("active");});var a=map[e.target.id];if(a)a.classList.add("active");}
+      });
+    },{rootMargin:"-30% 0px -60% 0px"});
+    Object.keys(map).forEach(function(id){var s=document.getElementById(id);if(s)io.observe(s);});
+  }
+})();
+</script>
+</body>
+</html>
